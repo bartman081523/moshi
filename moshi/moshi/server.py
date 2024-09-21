@@ -219,12 +219,12 @@ def main():
     log("info", "loading moshi")
     if args.moshi_weight is None:
         args.moshi_weight = hf_hub_download(args.hf_repo, loaders.MOSHI_NAME)
-    lm = loaders.get_moshi_lm(args.moshi_weight, args.device, quantization_config.quantization_level)
+    lm = loaders.get_moshi_lm(args.moshi_weight, args.device, state.quantization_config.quantization_level)
     log("info", "moshi loaded")
 
-    quantization_config = QuantizationConfig(quantization_level=args.quantization)  # Create QuantizationConfig object
+    quantization_config = QuantizationConfig(quantization_level=args.quantization)
 
-    state = ServerState(mimi, text_tokenizer, lm, args.device, quantization_config)  # Pass quantization_config to ServerState
+    state = ServerState(mimi, text_tokenizer, lm, args.device, quantization_config)
     state.warmup()
     app = web.Application()
     app.router.add_get("/api/chat", state.handle_chat)

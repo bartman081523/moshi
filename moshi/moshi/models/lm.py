@@ -90,6 +90,7 @@ class LMModel(StreamingContainer):
 
     def __init__(
         self,
+        quantization_levels,
         delays: tp.List[int] = [0],
         n_q: int = 8,
         dep_q: int = 8,
@@ -110,7 +111,6 @@ class LMModel(StreamingContainer):
         context: tp.Optional[int] = None,
         device=None,
         dtype=None,
-        quantization_levels,
         **kwargs,
     ):
         super().__init__()
