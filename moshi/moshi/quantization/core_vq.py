@@ -191,7 +191,7 @@ class EuclideanCodebook(nn.Module):
         assert x.dtype.is_floating_point, f"Input should be floats, got {x.dtype}"
         shape = x.shape
         x = self._reshape_input(x)
-        codes = self._quantize(x)
+        codes = self._quantize(x)  # Quantisiere Eingangsdaten
         codes = self._reshape_codes(codes, shape)
         return codes
 
@@ -199,10 +199,8 @@ class EuclideanCodebook(nn.Module):
         """Given a tensor of codes of shape `[*]`, returns a tensor of shape `[*, D]`,
         corresponding to the centroids associated to each code index.
         """
-        assert (
-            not codes.dtype.is_floating_point
-        ), f"Codes should be integers, got {codes.dtype}"
-        quantized = F.embedding(codes, self.embedding)
+        assert not codes.dtype.is_floating_point, f"Codes should be integers, got {codes.dtype}"
+        quantized = F.embedding(codes, self.embedding)  # Dequantisiere Codes
         return quantized
 
     def forward(
