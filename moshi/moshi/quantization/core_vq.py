@@ -15,7 +15,7 @@ import torch
 from torch import nn
 from torch import distributed
 import torch.nn.functional as F
-
+from .config import QuantizationConfig
 
 class _CodebookForwardResult(tp.NamedTuple):
     quantized: torch.Tensor
@@ -317,12 +317,13 @@ class ResidualVectorQuantization(nn.Module):
     Follows Algorithm 1. in https://arxiv.org/pdf/2107.03312.pdf
     """
 
-    def __init__(self, *, num_quantizers: int, codebook_offset: int, **kwargs):
+    def __init__(self, *, num_quantizers: int, codebook_offset: int, quantization_config: QuantizationConfig = None, **kwargs): # quantization_config hinzufügen
         super().__init__()
         self.layers = nn.ModuleList(
-            [VectorQuantization(**kwargs) for _ in range(num_quantizers)]
+            [VectorQuantization(**kwargs, quantization_config=quantization_config) for _ in range(num_quantizers)]
         )
         self.codebook_offset = codebook_offset
+        self.quantization_config = quantization_config
 
     def forward(
         self, x: torch.Tensor, n_q: tp.Optional[int] = None
