@@ -219,7 +219,7 @@ def main():
     log("info", "loading moshi")
     if args.moshi_weight is None:
         args.moshi_weight = hf_hub_download(args.hf_repo, loaders.MOSHI_NAME)
-    lm = loaders.get_moshi_lm(args.moshi_weight, args.device)
+    lm = loaders.get_moshi_lm(args.moshi_weight, args.device, quantization_config.quantization_level)
     log("info", "moshi loaded")
 
     quantization_config = QuantizationConfig(quantization_level=args.quantization)  # Create QuantizationConfig object

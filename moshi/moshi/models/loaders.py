@@ -153,11 +153,12 @@ def get_mimi(filename: str | Path,
     return model
 
 def get_moshi_lm(filename: str | Path,
-                 device: torch.device | str = 'cpu') -> LMModel:
+                 device: torch.device | str = 'cpu', quantization_levels=None) -> LMModel:
     dtype = torch.bfloat16
     model = LMModel(
         device=device,
         dtype=dtype,
+        quantization_levels=quantization_levels, # quantization_levels an LMModel übergeben
         **_lm_kwargs,
     ).to(device=device, dtype=dtype)
     model.eval()

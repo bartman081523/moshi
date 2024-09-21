@@ -54,6 +54,15 @@ class ScaledEmbedding(nn.Embedding):
         y = torch.where(is_zero[..., None], zero, y)
         return y
 
+class QuantizedEmbedding(nn.Module):
+    def __init__(self, num_embeddings, embedding_dim, quantization_levels):
+        super().__init__()
+        self.embedding = nn.Embedding(num_embeddings, embedding_dim)
+        self.quantization_levels = quantization_levels
+
+    def forward(self, input):
+        quantized_input = input / self.quantization_levels
+        return self.embedding(quantized_input)
 
 class LMModel(StreamingContainer):
     """Transformer-based language model on multiple streams of codes.
@@ -101,6 +110,7 @@ class LMModel(StreamingContainer):
         context: tp.Optional[int] = None,
         device=None,
         dtype=None,
+        quantization_levels,
         **kwargs,
     ):
         super().__init__()
@@ -122,7 +132,7 @@ class LMModel(StreamingContainer):
             zero_idx=self.zero_token_id,
         )
         self.emb = nn.ModuleList(
-            [EmbeddingFactory(self.card + 1, dim) for _ in range(n_q)]
+            [QuantizedEmbedding(self.card + 1, dim, quantization_levels) for _ in range(n_q)]
         )
         # Text card + padding token (if not in the original tokenizer)
         extra_text = self.existing_text_padding_id is None
