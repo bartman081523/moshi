@@ -236,6 +236,7 @@ class VectorQuantization(nn.Module):
             to avoid the centroid getting replaced too quickly.
         check_unused_every (int): Check for unused centroids every `check_unused_every` iterations.
             This is to avoid too many synchronization points.
+        quantization_config (QuantizationConfig): Configuration for quantization.
     """
 
     def __init__(
@@ -246,6 +247,7 @@ class VectorQuantization(nn.Module):
         decay: float = 0.99,
         epsilon: float = 1e-5,
         threshold_usage_ratio: float = 0.1,
+        quantization_config: QuantizationConfig = None,
         **kwargs,
     ):
         super().__init__()
@@ -269,6 +271,7 @@ class VectorQuantization(nn.Module):
             **kwargs,
         )
         self.codebook_size = codebook_size
+        self.quantization_config = quantization_config
 
     @property
     def embedding(self):

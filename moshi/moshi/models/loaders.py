@@ -11,6 +11,7 @@ from .compression import MimiModel
 from .lm import LMModel
 from ..modules import SEANetEncoder, SEANetDecoder, transformer
 from ..quantization import SplitResidualVectorQuantizer
+from ..quantization.config import QuantizationConfig
 
 SAMPLE_RATE = 24000
 FRAME_RATE = 12.5
