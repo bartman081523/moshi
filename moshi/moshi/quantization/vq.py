@@ -57,6 +57,7 @@ class ResidualVectorQuantizer(BaseQuantizer):
         codebook_offset: int = 0,
         force_projection: bool = False,
         generator_seed: tp.Optional[int] = None,
+        quantization_config: QuantizationConfig = None, # quantization_config hinzufügen
     ):
         super().__init__()
         self.max_n_q = n_q
@@ -97,6 +98,7 @@ class ResidualVectorQuantizer(BaseQuantizer):
             threshold_usage_ratio=threshold_usage_ratio,
             replaced_usage_ratio=replaced_usage_ratio,
             codebook_offset=codebook_offset,
+            quantization_config=quantization_config, # quantization_config weitergeben
         )
 
     def forward(self, x: torch.Tensor, frame_rate: int):
