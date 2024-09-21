@@ -29,10 +29,11 @@ from ..quantization import (
     SplitResidualVectorQuantizer,
     ResidualVectorQuantizer,
 )
+from ..quantization.config import QuantizationConfig
+
 from ..modules.resample import ConvDownsample1d, ConvTrUpsample1d
 from ..modules.streaming import StreamingModule, State
 from ..utils.compile import no_compile, CUDAGraphed
-
 
 logger = logging.getLogger()
 
@@ -59,6 +60,33 @@ class CompressionModel(StreamingModule[State]):
     def decode_latent(self, codes: torch.Tensor) -> torch.Tensor:
         """Decode from the discrete codes to continuous latent space."""
         ...
+
+    @property
+    @abstractmethod
+    def channels(self) -> int: ...
+
+    @property
+    @abstractmethod
+    def frame_rate(self) -> float: ...
+
+    @property
+    @abstractmethod
+    def sample_rate(self) -> int: ...
+
+    @property
+    @abstractmethod
+    def cardinality(self) -> int: ...
+
+    @property
+    @abstractmethod
+    def num_codebooks(self) -> int: ...
+
+    @property
+    @abstractmethod
+    def total_codebooks(self) -> int: ...
+
+    @abstractmethod
+    def set_num_codebooks(self, n: int): ...
 
     @property
     @abstractmethod

@@ -11,3 +11,4 @@
 # flake8: noqa
 from .vq import ResidualVectorQuantizer, SplitResidualVectorQuantizer
 from .base import BaseQuantizer, DummyQuantizer, QuantizedResult
+from .config import QuantizationConfig
