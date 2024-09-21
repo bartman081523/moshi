@@ -15,7 +15,7 @@ import torch
 from torch import nn
 from torch import distributed
 import torch.nn.functional as F
-
+from .config import QuantizationConfig
 
 class _CodebookForwardResult(tp.NamedTuple):
     quantized: torch.Tensor
