@@ -15,7 +15,7 @@ import torch
 
 from .base import BaseQuantizer, QuantizedResult
 from .core_vq import ResidualVectorQuantization
-
+from .config import QuantizationConfig
 
 class ResidualVectorQuantizer(BaseQuantizer):
     """Residual Vector Quantizer.
@@ -98,7 +98,7 @@ class ResidualVectorQuantizer(BaseQuantizer):
             threshold_usage_ratio=threshold_usage_ratio,
             replaced_usage_ratio=replaced_usage_ratio,
             codebook_offset=codebook_offset,
-            quantization_config=quantization_config, # quantization_config weitergeben
+            quantization_config=quantization_config,
         )
 
     def forward(self, x: torch.Tensor, frame_rate: int):
