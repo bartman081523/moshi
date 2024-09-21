@@ -254,6 +254,10 @@ class VectorQuantization(nn.Module):
         if codebook_dim is None:
             codebook_dim = dim
 
+        if quantization_config is not None:
+            dim = quantization_config.quantization_level
+            codebook_size = 2**quantization_config.quantization_level
+
         requires_projection = codebook_dim != dim
         self.project_in = (
             nn.Linear(dim, codebook_dim) if requires_projection else nn.Identity()
