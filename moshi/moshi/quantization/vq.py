@@ -120,7 +120,7 @@ class ResidualVectorQuantizer(BaseQuantizer):
         x = self.input_proj(x)
 
         bw_per_q = math.log2(self.bins) * frame_rate / 1000
-        quantized, codes, commit_loss, metrics = self.vq(x, n_q=n_q)
+        quantized, codes, commit_loss, metrics = self.vq(x, n_q=n_q) # Rückgabewert quantized verwenden
         B, _, _ = quantized.shape
         quantized = self.output_proj(quantized)
         codes = codes.transpose(0, 1)
