@@ -24,7 +24,7 @@ import torch
 
 from .client_utils import make_log
 from .models import loaders, MimiModel, LMModel, LMGen
-
+from .quantization import QuantizationConfig
 
 def log(level: str, msg: str):
     print(make_log(level, msg))
@@ -47,12 +47,14 @@ class ServerState:
     text_tokenizer: sentencepiece.SentencePieceProcessor
     lm_gen: LMGen
     lock: asyncio.Lock
+    quantization_config: QuantizationConfig  # Add quantization_config
 
     def __init__(self, mimi: MimiModel, text_tokenizer: sentencepiece.SentencePieceProcessor,
-                 lm: LMModel, device: str | torch.device):
+                 lm: LMModel, device: str | torch.device, quantization_config: QuantizationConfig):
         self.mimi = mimi
         self.text_tokenizer = text_tokenizer
         self.lm_gen = LMGen(lm)
+        self.quantization_config = quantization_config  # Initialize quantization_config
 
         self.device = device
         self.frame_size = int(self.mimi.sample_rate / self.mimi.frame_rate)
@@ -183,6 +185,9 @@ def main():
                              "Use this to select a different pre-trained model.")
     parser.add_argument("--device", type=str, default="cuda", help="Device on which to run, defaults to 'cuda'.")
 
+    parser.add_argument("-q", "--quantization", type=int, default=None,
+                        help="Quantization level (e.g., 4 for int4). If not specified, no quantization is applied.")
+
     args = parser.parse_args()
     seed_all(42424242)
 
@@ -217,8 +222,9 @@ def main():
     lm = loaders.get_moshi_lm(args.moshi_weight, args.device)
     log("info", "moshi loaded")
 
-    state = ServerState(mimi, text_tokenizer, lm, args.device)
-    log("info", "warming up the model")
+    quantization_config = QuantizationConfig(quantization_level=args.quantization)  # Create QuantizationConfig object
+
+    state = ServerState(mimi, text_tokenizer, lm, args.device, quantization_config)  # Pass quantization_config to ServerState
     state.warmup()
     app = web.Application()
     app.router.add_get("/api/chat", state.handle_chat)

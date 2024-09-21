@@ -103,7 +103,7 @@ def _is_safetensors(path: Path | str) -> bool:
 
 
 def get_mimi(filename: str | Path,
-             device: torch.device | str = 'cpu') -> MimiModel:
+             device: torch.device | str = 'cpu', quantization_level: int = None) -> MimiModel:
     """Return a pretrained Mimi model."""
     encoder = SEANetEncoder(**_seanet_kwargs)
     decoder = SEANetDecoder(**_seanet_kwargs)
@@ -113,9 +113,21 @@ def get_mimi(filename: str | Path,
     decoder_transformer = transformer.ProjectedTransformer(
         device=device, **_transformer_kwargs
     )
+
+    # QuantizationConfig basierend auf quantization_level erstellen:
+    quantization_config = QuantizationConfig(
+        quantization_level=quantization_level,
+        num_codebooks=8 if quantization_level is None else quantization_level,  # Anzahl der Codebücher an quantization_level anpassen
+        codebook_size=2048,  # Oder anderer Wert, falls benötigt
+        # ... weitere VQ-Parameter, falls benötigt
+    )
+
+    # Quantisierer mit QuantizationConfig initialisieren:
     quantizer = SplitResidualVectorQuantizer(
         **_quantizer_kwargs,
+        quantization_config=quantization_config # quantization_config an den Quantisierer übergeben
     )
+
     model = MimiModel(
         encoder,
         decoder,
@@ -128,6 +140,7 @@ def get_mimi(filename: str | Path,
         resample_method="conv",
         encoder_transformer=encoder_transformer,
         decoder_transformer=decoder_transformer,
+        quantization_config=quantization_config # quantization_config an MimiModel übergeben
     ).to(device=device)
     model.eval()
     if _is_safetensors(filename):
@@ -135,9 +148,8 @@ def get_mimi(filename: str | Path,
     else:
         pkg = torch.load(filename, "cpu")
         model.load_state_dict(pkg["model"])
-    model.set_num_codebooks(8)
+    model.set_num_codebooks(8 if quantization_level is None else quantization_level) # Anzahl aktiver Codebücher anpassen
     return model
-
 
 def get_moshi_lm(filename: str | Path,
                  device: torch.device | str = 'cpu') -> LMModel:

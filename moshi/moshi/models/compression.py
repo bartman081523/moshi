@@ -124,6 +124,7 @@ class MimiModel(CompressionModel[_MimiState]):
             Deactivated by default for training as this is incompatible at the moment with weight norm.
             See https://github.com/pytorch/pytorch/issues/121902
             Also this seems to work well with 2.2.0, but completely fail with 2.4.0.
+        quantization_config (QuantizationConfig): Configuration for the quantizer.
     """
 
     def __init__(
@@ -144,6 +145,7 @@ class MimiModel(CompressionModel[_MimiState]):
         freeze_quantizer: bool = False,
         freeze_quantizer_level: int = -1,
         torch_compile_encoder_decoder: bool = False,
+        quantization_config: QuantizationConfig = None,
     ):
         super().__init__()
         self.encoder = encoder
@@ -151,6 +153,7 @@ class MimiModel(CompressionModel[_MimiState]):
         self.encoder_transformer = encoder_transformer
         self.decoder_transformer = decoder_transformer
         self.quantizer = quantizer
+        self.quantization_config = quantization_config  # Store quantization_config
         self._frame_rate = frame_rate
         self._sample_rate = sample_rate
         self._channels = channels
@@ -248,7 +251,7 @@ class MimiModel(CompressionModel[_MimiState]):
         return self.quantizer.total_codebooks
 
     @property
-    def num_codebooks(self):
+    def num_codebooks(self) -> int:
         """Active number of codebooks used by the quantizer."""
         return self.quantizer.num_codebooks
 
@@ -421,7 +424,6 @@ class MimiModel(CompressionModel[_MimiState]):
     def decode_latent(self, codes: torch.Tensor) -> torch.Tensor:
         """Decode from the discrete codes to continuous latent space."""
         return self.quantizer.decode(codes)
-
 
 class WrapperCompressionModel(CompressionModel[State]):
     """Base API for CompressionModel wrappers that do not depend on external frameworks."""
